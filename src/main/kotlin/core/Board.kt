@@ -49,7 +49,7 @@ class Board {
         TODO()
     }
 
-    fun move(piece: Piece, dest: Coord) {
+    fun move(piece: Piece, destination: Coord) {
         TODO()
     }
 
@@ -86,6 +86,21 @@ class Board {
                 val p = board[j][7-i]
                 string += p?.toString() ?: "."
                 string += " "
+            }
+            string += "\n"
+        }
+        return string
+    }
+
+    fun debugPossibleMoves(coord: Coord): String {
+        var string = ""
+        for (i in 0..7) {
+            for (j in 0..7) {
+                string += if (board[coord.x][coord.y]?.isValidMove(Coord(j, 7-i), this) == true) {
+                    "o "
+                } else {
+                    ". "
+                }
             }
             string += "\n"
         }

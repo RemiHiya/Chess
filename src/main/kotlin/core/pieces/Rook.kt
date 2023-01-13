@@ -5,6 +5,7 @@ import core.*
 class Rook(color: Color): Piece(Type.ROOK, color) {
 
     override fun possibleMoves(board: Board): List<Coord> {
+
         val possibleMoves = mutableListOf<Coord>()
         val directionsPossibles = arrayOf(true, true, true, true)
         val directions = arrayOf(Pair(0, 1), Pair(1, 0), Pair(0, -1), Pair(-1, 0))
@@ -18,8 +19,13 @@ class Rook(color: Color): Piece(Type.ROOK, color) {
                     val pos = Coord(
                         getPosition().x + directions[j].first * i,
                         getPosition().y + directions[j].second * i)
-                    if (board.isEmpty(pos) || board.canCapture(pos, color)) {
-                        possibleMoves.add(pos)
+                    if (pos.isValid()) {
+                        if (board.isEmpty(pos))
+                            possibleMoves.add(pos)
+                        else if (board.canCapture(pos, color)) {
+                            possibleMoves.add(pos)
+                            directionsPossibles[j] = false
+                        }
                     } else {
                         directionsPossibles[j] = false
                     }

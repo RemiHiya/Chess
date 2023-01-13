@@ -21,6 +21,18 @@ class Coord(var x: Int, var y: Int) {
     fun isValid(): Boolean{
         return x in 0..7 && y in 0..7
     }
+    override operator fun equals(other: Any?): Boolean {
+        if (other is Coord) {
+            return x == other.x && y == other.y
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        var result = x
+        result = 31 * result + y
+        return result
+    }
 }
 
 fun String.toCoord(): Coord {

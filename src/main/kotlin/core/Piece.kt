@@ -4,10 +4,11 @@ abstract class Piece(val type: Type, val color: Color) {
 
     private var position: Coord = Coord(-1, -1)
     var moveCounter: Int = 0
+
     abstract fun possibleMoves(board: Board): List<Coord>
 
-    open fun isValidMove(toCoord: Coord, board: Board): Boolean {
-        return possibleMoves(board).contains(toCoord)
+    open fun isValidMove(destination: Coord, board: Board): Boolean {
+        return possibleMoves(board).contains(destination)
     }
 
     fun getPosition(): Coord {
@@ -15,6 +16,10 @@ abstract class Piece(val type: Type, val color: Color) {
     }
     fun setPosition(x: Int, y:Int): Coord {
         position = Coord(x, y)
+        return position
+    }
+    fun setPosition(coord: Coord): Coord {
+        position = coord
         return position
     }
 
