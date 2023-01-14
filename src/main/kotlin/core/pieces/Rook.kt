@@ -17,8 +17,8 @@ class Rook(color: Color): Piece(Type.ROOK, color) {
                 if (directionsPossibles[j]) {
                     // pos : la position dans la direction j, à la distance i
                     val pos = Coord(
-                        getPosition().x + directions[j].first * i,
-                        getPosition().y + directions[j].second * i)
+                        position.x + directions[j].first * i,
+                        position.y + directions[j].second * i)
                     if (pos.isValid()) {
                         if (board.isEmpty(pos))
                             possibleMoves.add(pos)
@@ -35,5 +35,9 @@ class Rook(color: Color): Piece(Type.ROOK, color) {
         }
 
         return possibleMoves
+    }
+
+    override fun possibleAttacks(board: Board): List<Coord> {
+        return possibleMoves(board)
     }
 }

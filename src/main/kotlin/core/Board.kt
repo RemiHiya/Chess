@@ -36,7 +36,7 @@ class Board {
         }
         for (i in 0..7) {
             for (j in 0..7) {
-                board[i][j]?.setPosition(i, j)
+                board[i][j]?.position = Coord(i, j)
             }
         }
     }
@@ -72,6 +72,29 @@ class Board {
     fun canCapture(coord: Coord, color: Color): Boolean {
         val piece = board[coord.x][coord.y]
         return piece != null && piece.color != color
+    }
+
+    fun getPiecesOfColor(color: Color): MutableList<Piece> {
+        val pieces = mutableListOf<Piece>()
+        for (i in 0..7) {
+            for (j in 0..7) {
+                if (board[i][j]?.color == color)
+                    board[i][j]?.let { pieces.add(it) }
+            }
+        }
+        return pieces
+    }
+
+    fun getAttacksOfColor(color: Color): MutableList<Coord> {
+        val attacks = mutableListOf<Coord>()
+        for (i in 0..7) {
+            for (j in 0..7) {
+                if (board[i][j]?.color == color)
+                    board[i][j]?.let { attacks.addAll(it.possibleAttacks(this)) }
+            }
+        }
+
+        return attacks
     }
 
 
