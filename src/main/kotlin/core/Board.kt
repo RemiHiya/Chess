@@ -41,6 +41,17 @@ class Board {
         }
     }
 
+    fun init() {
+        board[7][0] = King(white)
+        board[7][7] = Rook(black)
+        board[4][4] = Rook(white)
+        board[0][7] = King(black)
+
+        board[7][0]?.position = Coord(7, 0)
+        board[7][7]?.position = Coord(7, 7)
+        board[4][4]?.position = Coord(4, 4)
+        board[0][7]?.position = Coord(0, 7)
+    }
     /*
     Game
      */
@@ -89,14 +100,29 @@ class Board {
         val attacks = mutableListOf<Coord>()
         for (i in 0..7) {
             for (j in 0..7) {
-                if (board[i][j]?.color == color)
-                    board[i][j]?.let { attacks.addAll(it.possibleAttacks(this)) }
+                val p = board[i][j]
+                if (p!= null && p.color == color) {
+                    attacks.addAll(p.possibleAttacks(this, true))
+                }
             }
         }
-
         return attacks
     }
 
+    fun getKing(color: Color): Piece {
+        for (i in 0..7) {
+            for (j in 0..7) {
+                val p = board[i][j]
+                if (p is King && p.color == color)
+                    return p
+            }
+        }
+        return King(color)
+    }
+
+    fun isCheck(color: Color): Boolean {
+        return getAttacksOfColor(color.opposite()).contains(getKing(color).position)
+    }
 
     /*
     - Debug

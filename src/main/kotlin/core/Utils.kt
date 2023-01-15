@@ -11,7 +11,15 @@ enum class Type {
 
 enum class Color {
     WHITE,
-    BLACK
+    BLACK;
+
+    fun opposite(): Color {
+        return if (this == WHITE) {
+            BLACK
+        } else {
+            WHITE
+        }
+    }
 }
 
 class Coord(var x: Int, var y: Int) {
