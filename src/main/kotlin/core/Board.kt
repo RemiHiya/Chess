@@ -7,7 +7,7 @@ class Board {
     private val white = Color.WHITE
     private val black = Color.BLACK
 
-    private var turn = 0    // 0: joueur 1, 1: joueur 2
+    var turn = white    // 0: joueur 1, 1: joueur 2
 
     private val board = Array(8) { arrayOfNulls<Piece>(8)}
 
@@ -61,11 +61,13 @@ class Board {
     }
 
     fun move(piece: Piece, destination: Coord) {
-        TODO()
+        board[piece.position.x][piece.position.y] = null
+        piece.position = destination
+        board[destination.x][destination.y] = piece
     }
 
     fun nextTurn() {
-        turn = if (turn == 0) 1 else 0
+        turn = turn.opposite()
     }
 
 
@@ -102,26 +104,37 @@ class Board {
             for (j in 0..7) {
                 val p = board[i][j]
                 if (p!= null && p.color == color) {
-                    attacks.addAll(p.possibleAttacks(this, true))
+                    attacks.addAll(p.possibleAttacks(this))
                 }
             }
         }
         return attacks
     }
 
-    fun getKing(color: Color): Piece {
+    fun findKing(color: Color): Piece {
         for (i in 0..7) {
             for (j in 0..7) {
-                val p = board[i][j]
-                if (p is King && p.color == color)
-                    return p
+                val piece = board[i][j]
+                if (piece is King && piece.color == color)
+                    return piece
             }
         }
-        return King(color)
+        throw IllegalArgumentException("King not found for color $color.")
     }
 
     fun isCheck(color: Color): Boolean {
-        return getAttacksOfColor(color.opposite()).contains(getKing(color).position)
+        val king = findKing(color)
+        for (i in 0..7) {
+            for (j in 0..7) {
+                val piece = board[i][j]
+                if (piece != null && piece.color != color) {
+                    if (piece.possibleAttacks(this).contains(king.position)) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
     }
 
     /*
