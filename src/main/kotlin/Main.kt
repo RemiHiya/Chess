@@ -6,5 +6,4 @@ fun main() {
     println(b.turn)
     println(b)
     println(b.debugPossibleMoves(Coord(4, 4)))
-
 }

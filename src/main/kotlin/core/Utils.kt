@@ -36,6 +36,10 @@ class Coord(var x: Int, var y: Int) {
         return false
     }
 
+    operator fun plus(other: Coord): Coord {
+        return Coord(x + other.x, y + other.y)
+    }
+
     override fun hashCode(): Int {
         var result = x
         result = 31 * result + y

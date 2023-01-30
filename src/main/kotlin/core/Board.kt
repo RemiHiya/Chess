@@ -44,7 +44,7 @@ class Board {
     fun init() {
         board[7][0] = King(white)
         board[7][7] = Rook(black)
-        board[4][4] = Rook(white)
+        board[4][4] = Bishop(white)
         board[0][7] = King(black)
 
         board[7][0]?.position = Coord(7, 0)
@@ -57,7 +57,18 @@ class Board {
      */
 
     fun input(input: String) {
-        TODO()
+        val pos1 = (input[0].toString() + input[1]).toCoord()
+        val pos2 = (input[0].toString() + input[1]).toCoord()
+    }
+
+    fun isInputValid(input: String): Boolean {
+        if ("abcdefgh".contains(input[0]) &&
+            "12345678".contains(input[1]) &&
+            "abcdefgh".contains(input[2]) &&
+            "12345678".contains(input[3]) &&
+            input.length == 4)
+            return true
+        return false
     }
 
     fun move(piece: Piece, destination: Coord) {
@@ -80,6 +91,10 @@ class Board {
 
     fun getPiece(coord: Coord): Piece? {
         return board[coord.x][coord.y]
+    }
+
+    fun setPiece(piece: Piece?, coord: Coord) {
+        board[coord.x][coord.y] = piece
     }
 
     fun canCapture(coord: Coord, color: Color): Boolean {
@@ -111,6 +126,20 @@ class Board {
         return attacks
     }
 
+    fun isUnderAttack(coord: Coord, color: Color): Boolean {
+        for (i in 0..7) {
+            for (j in 0..7) {
+                val piece = board[i][j]
+                if (piece != null && piece.color != color) {
+                    if (piece.possibleAttacks(this).contains(coord)) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
     fun findKing(color: Color): Piece {
         for (i in 0..7) {
             for (j in 0..7) {
@@ -123,18 +152,7 @@ class Board {
     }
 
     fun isCheck(color: Color): Boolean {
-        val king = findKing(color)
-        for (i in 0..7) {
-            for (j in 0..7) {
-                val piece = board[i][j]
-                if (piece != null && piece.color != color) {
-                    if (piece.possibleAttacks(this).contains(king.position)) {
-                        return true
-                    }
-                }
-            }
-        }
-        return false
+        return isUnderAttack(findKing(color).position, color)
     }
 
     /*

@@ -21,11 +21,13 @@ abstract class Piece(val type: Type, val color: Color) {
         val possibleMoves = mutableListOf<Coord>()
         val backupPos = position
         for (move in moves) {
+            val backupPiece = board.getPiece(move) // Enregistre la piece qui est deja dans la destination
             board.move(this, move) // Simule le déplacement de la pièce
             if (!board.isCheck(color)) {
                 possibleMoves.add(move)
             }
             board.move(this, backupPos) // Remet la pièce à sa position initiale
+            board.setPiece(backupPiece, move) // Replace la pièce qui était dans la destination
 
         }
         position = backupPos
