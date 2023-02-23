@@ -24,37 +24,14 @@ class Pawn(color: Color): Piece(Type.PAWN, color) {
 
         // Capture diagonale droite
         pos = Coord(position.x+1, pos.y)
-        if (pos.isValid() && board.canCapture(pos, color)) {
+        if (pos.isValid() && (board.canCapture(pos, color) || board.enPassantTarget == pos)) {
             possibleMoves.add(pos)
         }
 
         // Capture diagonale gauche
         pos = Coord(position.x-1, pos.y)
-        if (pos.isValid() && board.canCapture(pos, color)) {
+        if (pos.isValid() && (board.canCapture(pos, color) || board.enPassantTarget == pos)) {
             possibleMoves.add(pos)
-        }
-
-        // En passant droite
-        pos = Coord(position.x+1, position.y)
-        var piece = if (pos.isValid()) board.getPiece(pos) else null
-        if (pos.isValid() &&
-            piece is Pawn &&
-            piece.color != color &&
-            piece.moveCounter == 1 &&
-            board.isEmpty(Coord(pos.x, pos.y + upDirection))) {
-            possibleMoves.add(Coord(pos.x, pos.y + upDirection))
-        }
-
-
-        // En passant gauche
-        pos = Coord(position.x-1, position.y)
-        piece = if (pos.isValid()) board.getPiece(pos) else null
-        if (pos.isValid() &&
-            piece is Pawn &&
-            piece.color != color &&
-            piece.moveCounter == 1 &&
-            board.isEmpty(Coord(pos.x, pos.y + upDirection))) {
-            possibleMoves.add(Coord(pos.x, pos.y + upDirection))
         }
 
         return possibleMoves
