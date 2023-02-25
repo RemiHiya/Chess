@@ -4,6 +4,8 @@ import core.*
 
 class Bishop(color: Color): Piece(Type.BISHOP, color) {
 
+    override val value: Int = 3
+
     override fun possibleMoves(board: Board): List<Coord> {
         val possibleMoves = mutableListOf<Coord>()
         val directionsPossibles = arrayOf(true, true, true, true)

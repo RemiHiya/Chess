@@ -4,6 +4,8 @@ import core.*
 
 class Pawn(color: Color): Piece(Type.PAWN, color) {
 
+    override val value: Int = 1
+
     override fun possibleMoves(board: Board): List<Coord> {
 
         val possibleMoves = mutableListOf<Coord>()

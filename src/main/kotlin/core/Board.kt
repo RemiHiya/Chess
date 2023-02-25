@@ -2,6 +2,9 @@ package core
 
 import core.pieces.*
 
+const val SQUARE_VALUE_WHITE = 10
+const val SQUARE_VALUE_BLACK = -10
+
 class Board {
 
     private val white = Color.WHITE
@@ -91,7 +94,7 @@ class Board {
         return false
     }
 
-    fun move(piece: Piece, destination: Coord) {
+    fun move(piece: Piece, destination: Coord): Piece? {
         enPassantTarget = null
         // Target en passant
         if (piece is Pawn && piece.moveCounter == 0) {
@@ -99,13 +102,16 @@ class Board {
             enPassantTarget = Coord(piece.position.x, piece.position.y+1)
         }
         piece.moveCounter++
-        simMove(piece, destination)
+        nextTurn()
+        return simMove(piece, destination)
     }
 
-    fun simMove(piece: Piece, destination: Coord) {
+    fun simMove(piece: Piece, destination: Coord): Piece? {
         board[piece.position.x][piece.position.y] = null
         piece.position = destination
+        val captured = board[destination.x][destination.y]
         board[destination.x][destination.y] = piece
+        return captured
     }
 
     fun nextTurn() {
@@ -151,17 +157,29 @@ class Board {
         return pieces
     }
 
-    fun getAttacksOfColor(color: Color): MutableList<Coord> {
-        val attacks = mutableListOf<Coord>()
+    fun getMovesOfColor(color: Color): MutableMap<Piece, List<Coord>> {
+        val map = mutableMapOf<Piece, List<Coord>>()
         for (i in 0..7) {
             for (j in 0..7) {
                 val p = board[i][j]
                 if (p!= null && p.color == color) {
-                    attacks.addAll(p.possibleAttacks(this))
+                    map[p] = p.possibleMoves(this)
                 }
             }
         }
-        return attacks
+        return map
+    }
+
+    fun getAllMovesOfColor(color: Color): MutableList<Pair<Piece, Coord>> {
+        val moves = mutableListOf<Pair<Piece, Coord>>()
+        val mappedMoves = getMovesOfColor(color)
+        for (i in mappedMoves.keys) {
+            for (j in mappedMoves[i]!!) {
+                moves.add(Pair(i, j))
+            }
+
+        }
+        return moves
     }
 
     fun isUnderAttack(coord: Coord, color: Color): Boolean {
@@ -193,6 +211,52 @@ class Board {
         return isUnderAttack(findKing(color).position, color)
     }
 
+    fun isMate(color: Color): Boolean {
+        return isCheck(color) && getMovesOfColor(color).isEmpty()
+    }
+
+    fun isStalemate(color: Color): Boolean {
+        return !isCheck(color) && getMovesOfColor(color).isEmpty()
+    }
+
+    fun isGameOver(): Boolean {
+        return isMate(white) || isMate(black) || isStalemate(white) || isStalemate(black)
+    }
+
+    fun updatePositions() {
+        for (y in 0..7) {
+            for (x in 0..7) {
+                board[x][y]?.position = Coord(x, y)
+            }
+        }
+    }
+
+    fun evaluate(): Int {
+        var score = 0
+        for (row in 0..7) {
+            for (col in 0..7) {
+                val piece = getPiece(Coord(col, row))
+                if (piece != null) {
+                    val pieceValue = piece.value
+                    val squareValue = getSquareValue(turn, Coord(col, row))
+                    score += pieceValue + squareValue
+                    if (piece.color == turn.opposite()) {
+                        score *= -1
+                    }
+                }
+            }
+        }
+        return score
+    }
+
+    fun getSquareValue(player: Color, position: Coord): Int {
+        val row = position.y
+        val col = position.x
+        val isWhite = (row + col) % 2 == 0
+        val value = if (isWhite) SQUARE_VALUE_WHITE else SQUARE_VALUE_BLACK
+        return if (player == Color.WHITE) value else -value
+    }
+
     /*
     - Import / Export
      */
@@ -200,46 +264,31 @@ class Board {
     fun loadFEN(fen: String) {
         val parts = fen.split(" ")
         val b = Array(8) { arrayOfNulls<Piece>(8)}
-        println(parts)
 
         // Placement des pièces
         var line = 7
         var column = 0
         for (i in parts[0]) {
             val col = if (i.isUpperCase()) white else black
-            when (i.lowercase()) {
-                "p" -> {
-                    b[column][line] = Pawn(col)
-                    column++
-                }
-                "r" -> {
-                    b[column][line] = Rook(col)
-                    column++
-                }
-                "n" -> {
-                    b[column][line] = Knight(col)
-                    column++
-                }
-                "b" -> {
-                    b[column][line] = Bishop(col)
-                    column++
-                }
-                "q" -> {
-                    b[column][line] = Queen(col)
-                    column++
-                }
-                "k" -> {
-                    b[column][line] = King(col)
-                    column++
-                }
-                "/" -> {
-                    line--
-                    column = 0
-                }
+            if (i.lowercase() == "/") {
+                line--
+                column = 0
+                continue
             }
             if ("12345678".indexOf(i) != -1) {
                 column += "12345678".indexOf(i)+1
+                continue
             }
+            b[column][line] = when (i.lowercase()) {
+                "p" -> Pawn(col)
+                "r" -> Rook(col)
+                "n" -> Knight(col)
+                "b" -> Bishop(col)
+                "q" -> Queen(col)
+                "k" -> King(col)
+                else -> null
+            }
+            column++
         }
         // Couleur devant jouer
         turn = if (parts[1] == "w") white else black
@@ -255,8 +304,58 @@ class Board {
         // Coups
         fullMoveClock = parts[5].toInt()
         board = b
+        updatePositions()
     }
 
+    fun getFEN(): String {
+        var result = ""
+        // Positions des pièces
+        for (y in 7 downTo 0) {
+            var emptyCounter = 0
+            for (x in 0..7) {
+                val piece: String = when (board[x][y]) {
+                    is Pawn -> "p"
+                    is Rook -> "r"
+                    is Knight -> "n"
+                    is Bishop -> "b"
+                    is Queen -> "q"
+                    is King -> "k"
+                    else -> ""
+                }
+                if (board[x][y] == null) {
+                    emptyCounter++
+                } else {
+                    result += if (emptyCounter > 0) emptyCounter else ""
+                    result += if (board[x][y]?.color == Color.WHITE) piece.uppercase() else piece
+                    emptyCounter = 0
+                }
+            }
+            result += if (emptyCounter > 0) emptyCounter else ""
+            if (y != 0)
+                result += "/"
+        }
+        // Couleur
+        result += " "
+        result += if (turn == Color.WHITE) "w" else "b"
+        // Roques
+        result += " "
+        var b = false
+        for (i in castles.keys) {
+            if (castles[i] == true) {
+                result += i
+                b = true
+            }
+        }
+        if (!b)
+            result += "-"
+        result += " "
+        result += if (enPassantTarget == null) "-" else enPassantTarget
+        result += " "
+        result += halfMoveClock
+        result += " "
+        result += fullMoveClock
+        return result
+    }
 
     /*
     - Debug

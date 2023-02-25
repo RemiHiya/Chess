@@ -4,6 +4,8 @@ import core.*
 
 class Knight(color: Color): Piece(Type.KNIGHT, color) {
 
+    override val value: Int = 3
+
     override fun possibleMoves(board: Board): List<Coord> {
         val moves = listOf(
             Coord(-2, -1),

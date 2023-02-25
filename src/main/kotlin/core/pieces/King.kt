@@ -4,6 +4,8 @@ import core.*
 
 class King(color: Color): Piece(Type.KING, color) {
 
+    override val value: Int = 10000
+
     override fun possibleMoves(board: Board): List<Coord> {
         val directions = arrayOf(Coord(0, 1), Coord(1, 0), Coord(0, -1), Coord(-1, 0),
             Coord(1, 1), Coord(1, -1), Coord(-1, -1), Coord(-1, 1))

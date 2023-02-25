@@ -4,6 +4,8 @@ import core.*
 
 class Queen(color: Color): Piece(Type.QUEEN, color) {
 
+    override val value: Int = 9
+
     override fun possibleMoves(board: Board): List<Coord> {
         val possibleMoves = mutableListOf<Coord>()
         val directionsPossibles = arrayOf(true, true, true, true, true, true, true, true)

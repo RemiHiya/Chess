@@ -4,6 +4,8 @@ import core.*
 
 class Rook(color: Color): Piece(Type.ROOK, color) {
 
+    override val value: Int = 5
+
     override fun possibleMoves(board: Board): List<Coord> {
 
         val possibleMoves = mutableListOf<Coord>()

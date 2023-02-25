@@ -4,6 +4,7 @@ abstract class Piece(val type: Type, val color: Color) {
 
     var position: Coord = Coord(-1, -1)
     var moveCounter: Int = 0
+    abstract val value: Int
 
     abstract fun possibleMoves(board: Board): List<Coord>
 

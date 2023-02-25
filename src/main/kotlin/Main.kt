@@ -3,12 +3,13 @@ import core.*
 fun main() {
     val b = Board()
     b.initialize()
-    //b.loadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq e3 0 1")
+    b.loadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     println(b)
+    //println(AI(b).predict(3))
 
     // TODO: vérif couleur, vérif echec
 
-    /*while (true) {
+    while (true) {
         val input = readlnOrNull()
         if (input != null) {
             if (!b.isInputValid(input))
@@ -20,10 +21,13 @@ fun main() {
             else {
                 b.executeInput(input)
                 println(b)
+                var t = AI(b).predict(3)
+                println(t!!.first.position)
+                println(t.second)
             }
         }
 
-    }*/
+    }
 
 
 }
